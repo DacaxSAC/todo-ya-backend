@@ -4,6 +4,7 @@ import { CreateCategoryDto, UpdateCategoryDto } from '../dto/category.dto';
 import { Category } from '../entities/category.entities';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { ResponseCategoryDto } from '../dto/response-category.dto';
 
 @Injectable()
 export class CategoryService {
@@ -63,13 +64,39 @@ export class CategoryService {
     private categoryRepository: Repository<Category>,
   ) {}
 
+  //Para memória local
   // findAll() {
   //   return this.categories.filter((category) => category.visibilityState === true);
   // }
-  async findAll() {
-    return await this.categoryRepository.find({
-      where: { visibilityState: true },
+
+  //Sin response-category.dto
+  // async findAll() {
+  //   return await this.categoryRepository.find({
+  //     where: { enable: true },
+  //   });
+  // }
+
+  //Con response-category.dto
+  // async findAll() {
+  //   const categories = await this.categoryRepository.find({
+  //     where: { enable: true },
+  //   });
+  //   return categories.map((category) => {
+  //     const responseCategory = new ResponseCategoryDto();
+  //     responseCategory.categoryId = category.categoryId;
+  //     responseCategory.name = category.name;
+  //     return responseCategory;
+  //   });
+  // }
+
+  async findAll(): Promise<ResponseCategoryDto[]> {
+    const categories = await this.categoryRepository.find({
+      where: { enable: true },
     });
+    return categories.map((c) => ({
+      categoryId: c.categoryId,
+      name: c.name,
+    }));
   }
 
   //Para conferir las categorias vigentes (visibilityState:1) y las categorias eliminadas (visibilityState: 0)
@@ -80,16 +107,29 @@ export class CategoryService {
     return await this.categoryRepository.find();
   }
 
+  //En memória local
   // findById(id: number) {
   //   const position = this.findOne(id);
   //   const categoryInformation = this.categories[position];
   //   return categoryInformation;
   // }
-  async findById(id: number) {
-    const user = await this.findOne(id);
-    return user;
+
+  //Sin response-category.dto
+  // async findById(id: number) {
+  //   const user = await this.findOne(id);
+  //   return user;
+  // }
+
+  //Con response-category.dto
+  async findById(id: number): Promise<ResponseCategoryDto> {
+    const category = await this.findOne(id);
+    return {
+      categoryId: category.categoryId,
+      name: category.name,
+    };
   }
 
+  //Para memória local
   // create(body: CreateCategoryDto) {
   //   const newCategory = {
   //     categoryId: this.categories.length + 1,
@@ -103,18 +143,33 @@ export class CategoryService {
   //   return newCategory;
   // }
 
-  async create(body: CreateCategoryDto) {
+  //Sin response-category.dto
+  // async create(body: CreateCategoryDto) {
+  //   const newCategory = await this.categoryRepository.save({
+  //     //categoryId: body.categoryId,  >> Se autogenera
+  //     name: body.name,
+  //     description: body.description,
+  //     enable: true,
+  //   });
+  //   return newCategory;
+  //   // return await this.categoryRepository.save(newCategory);
+  // }
+
+  //Con response-category.dto
+  async create(body: CreateCategoryDto): Promise<ResponseCategoryDto> {
     const newCategory = await this.categoryRepository.save({
       //categoryId: body.categoryId,  >> Se autogenera
       name: body.name,
       description: body.description,
-      visibilityState: true,
+      enable: true,
     });
-    return newCategory;
-    // return await this.categoryRepository.save(newCategory);
+    return {
+      categoryId: newCategory.categoryId,
+      name: newCategory.name,
+    };
   }
 
-  //La única forma de cambiar visibilityState es eliminando (lo convierte a false)
+  //Para memoria local
   // delete(id: number) {
   //   const position = this.findOne(id);
   //   this.categories[position].visibilityState = false;
@@ -123,12 +178,12 @@ export class CategoryService {
 
   async delete(id: number) {
     const category = await this.findOne(id);
-    category.visibilityState = false;
+    category.enable = false;
     await this.categoryRepository.save(category);
     return { message: `Categoría con ID ${id} eliminada correctamente` };
   }
 
-  //N se puede cambiar el categoryId ni el visibilityState
+  //Para memoria local
   // update(id: number, body: UpdateCategoryDto) {
   //   const position = this.findOne(id);
   //   const newCategory = {
@@ -141,16 +196,34 @@ export class CategoryService {
   //   return newCategory;
   // }
 
+  //Sin response-category.dto
+  // async update(id: number, body: UpdateCategoryDto) {
+  //   const category = await this.findOne(id);
+  //   const updatedCategory = {
+  //     categoryId: category.categoryId,
+  //     name: body.name ?? category.name,
+  //     description: body.description ?? category.description,
+  //     enable: category.enable,
+  //   };
+  //   await this.categoryRepository.save(updatedCategory);
+  //   return updatedCategory;
+  // }
+
+  //No puse con response-category.dto para q se vea descripcion si es q se actualizó
   async update(id: number, body: UpdateCategoryDto) {
     const category = await this.findOne(id);
     const updatedCategory = {
       categoryId: category.categoryId,
       name: body.name ?? category.name,
       description: body.description ?? category.description,
-      visibilityState: category.visibilityState,
+      enable: category.enable,
     };
     await this.categoryRepository.save(updatedCategory);
-    return updatedCategory;
+    return {
+      categoryId: updatedCategory.categoryId,
+      name: updatedCategory.name,
+      description: updatedCategory.description,
+    };
   }
 
   // private findOne(id: number) {

@@ -1,7 +1,7 @@
 #1)Configuración con base de datos:
 npm install --save @nestjs/typeorm typeorm pg
 
-#2)Configurar en las variables de entorno en ".env"
+#2)Configurar en las variables de entorno en ".env" (URL completa de PostgreSQL (para producción - Render)): URL de dashboarD render en "connect external database URL"
 
 #3)Configurar "app.module.ts" para la base de datos >> Sincronizar base de datos
 
