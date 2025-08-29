@@ -1,6 +1,6 @@
 import { IsNotEmpty, IsString } from 'class-validator';
 
-export class createCategory {
+export class CreateCategory {
   @IsNotEmpty({ message: 'El nombre es obligatorio' })
   @IsString({ message: 'El nombre debe ser un texto' })
   name: string;

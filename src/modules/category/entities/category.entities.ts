@@ -1,6 +1,6 @@
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 
-@Entity({ name: 'categories' })
+@Entity({ name: 'category' })
 export class Category {
   @PrimaryGeneratedColumn()
   categoryId: number;
@@ -12,7 +12,7 @@ export class Category {
   description: string;
 
   @Column()
-  visibilityState: boolean;
+  enable: boolean;
 
   @CreateDateColumn({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP', name: 'created_at' })
   createdAt: Date;
